@@ -9,17 +9,7 @@ jobs:
   create_pr:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout do código
-        uses: actions/checkout@v4
-
-      - name: Criar Pull Request
-        uses: peter-evans/create-pull-request@v5
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "Changelog de desenvolvimento: feat"
-          base: main
-          title: "Pull Request Automático para main"
-          body: |
-            Este é um Pull Request gerado automaticamente.
-            Branch: ${{ github.ref_name }}
-            Criado por: ${{ github.actor }}
+    - name: create pull request
+      run: gh pr create -B base_branch -H branch_to_merge --title 'Merge branch_to_merge into base_branch' --body 'Created by Github action'
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
