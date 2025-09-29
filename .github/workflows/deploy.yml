@@ -1,4 +1,4 @@
-name: Deploy
+name: Build, Test and Deploy
 
 on:
   push:
@@ -12,7 +12,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Cache Gradle packages
         uses: actions/cache@v4
@@ -27,6 +27,7 @@ jobs:
       - name: Run tests and generate coverage
         run: ./gradlew clean build
   deploy:
+    needs: build-and-test
     runs-on: ubuntu-latest
 
     steps:
