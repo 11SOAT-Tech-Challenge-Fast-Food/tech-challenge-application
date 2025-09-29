@@ -27,7 +27,7 @@ jobs:
       - name: Run tests and generate coverage
         run: ./gradlew clean build
   deploy:
-    needs: build-and-test
+    needs: gradlew
     runs-on: ubuntu-latest
 
     steps:
