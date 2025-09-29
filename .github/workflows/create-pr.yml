@@ -1,0 +1,26 @@
+name: Criar PR Automático para main
+
+on:
+  push:
+    branches:
+      - feature/*
+
+jobs:
+  create_pr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Criar Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "Changelog de desenvolvimento: feat"
+          base: main
+          head: ${{ github.ref_name }}
+          title: "Pull Request Automático para main"
+          body: |
+            Este é um Pull Request gerado automaticamente.
+            Branch: ${{ github.ref_name }}
+            Criado por: ${{ github.actor }}
