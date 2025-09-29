@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<checkstyle version="4.3">
+<file name="/Users/biancavediner/Downloads/pos/order-management/src/main/kotlin/br/com/fiap/ordermanagement/order/external/api/handler/ErrorHandler.kt">
+	<error line="17" column="7" severity="warning" message="Class &apos;ErrorHandler&apos; with &apos;12&apos; functions detected. Defined threshold inside classes is set to &apos;12&apos;" source="detekt.TooManyFunctions" />
+</file>
+<file name="/Users/biancavediner/Downloads/pos/order-management/src/main/kotlin/br/com/fiap/ordermanagement/order/external/jms/receiver/JMSReceiver.kt">
+	<error line="21" column="18" severity="warning" message="The caught exception is too generic. Prefer catching specific exceptions to the case that is currently handled." source="detekt.TooGenericExceptionCaught" />
+</file>
+<file name="/Users/biancavediner/Downloads/pos/order-management/src/main/kotlin/br/com/fiap/ordermanagement/payment/core/gateways/PaymentGateway.kt">
+	<error line="60" column="18" severity="warning" message="The caught exception is too generic. Prefer catching specific exceptions to the case that is currently handled." source="detekt.TooGenericExceptionCaught" />
+</file>
+<file name="/Users/biancavediner/Downloads/pos/order-management/src/main/kotlin/br/com/fiap/ordermanagement/payment/external/jms/sender/JMSSender.kt">
+	<error line="27" column="18" severity="warning" message="The caught exception is too generic. Prefer catching specific exceptions to the case that is currently handled." source="detekt.TooGenericExceptionCaught" />
+</file>
+<file name="/Users/biancavediner/Downloads/pos/order-management/src/main/kotlin/br/com/fiap/ordermanagement/payment/common/PaymentProviderStatus.kt">
+	<error line="6" column="5" severity="warning" message="Enum entry names should match the pattern: [A-Z][_a-zA-Z0-9]*" source="detekt.EnumNaming" />
+	<error line="7" column="5" severity="warning" message="Enum entry names should match the pattern: [A-Z][_a-zA-Z0-9]*" source="detekt.EnumNaming" />
+	<error line="8" column="5" severity="warning" message="Enum entry names should match the pattern: [A-Z][_a-zA-Z0-9]*" source="detekt.EnumNaming" />
+	<error line="9" column="5" severity="warning" message="Enum entry names should match the pattern: [A-Z][_a-zA-Z0-9]*" source="detekt.EnumNaming" />
+	<error line="10" column="5" severity="warning" message="Enum entry names should match the pattern: [A-Z][_a-zA-Z0-9]*" source="detekt.EnumNaming" />
+	<error line="11" column="5" severity="warning" message="Enum entry names should match the pattern: [A-Z][_a-zA-Z0-9]*" source="detekt.EnumNaming" />
+	<error line="12" column="5" severity="warning" message="Enum entry names should match the pattern: [A-Z][_a-zA-Z0-9]*" source="detekt.EnumNaming" />
+</file>
+</checkstyle>

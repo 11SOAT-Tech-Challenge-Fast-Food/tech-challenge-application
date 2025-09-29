@@ -1,0 +1,31 @@
+server:
+  port: ${SERVER_PORT}
+
+spring:
+  application:
+    name: order-management
+  datasource:
+    url: ${POSTGRES_URL}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: false
+    show-sql: false
+    hibernate:
+      ddl-auto: none
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    flyway:
+      enabled: true
+      locations: classpath:db/migration
+logging:
+  level:
+    br.com.fiap.ordermanagement: INFO
+
+mercado-pago:
+  external-pos-id: ${MERCADO_PAGO_EXTERNAL_POS_ID}
+  access-token: ${MERCADO_PAGO_ACCESS_TOKEN}
+  url: ${MERCADO_PAGO_URL}

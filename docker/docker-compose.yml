@@ -1,0 +1,20 @@
+services:
+  order-management:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    depends_on:
+      - order-management-db
+    env_file:
+      - ../variables-docker.env
+    ports:
+      - '8080:8080'
+  order-management-db:
+    image: postgres:latest
+    restart: always
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=order-management
+    ports:
+      - '5432:5432'
