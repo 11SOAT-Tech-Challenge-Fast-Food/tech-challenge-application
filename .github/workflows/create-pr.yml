@@ -18,7 +18,6 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: "Changelog de desenvolvimento: feat"
           base: main
-          head: ${{ github.ref_name }}
           title: "Pull Request Automático para main"
           body: |
             Este é um Pull Request gerado automaticamente.
