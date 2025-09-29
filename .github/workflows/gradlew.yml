@@ -1,4 +1,4 @@
-name: Deploy
+name: Gradlew
 
 on:
   push:
