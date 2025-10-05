@@ -1,0 +1,88 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order-management-backend
+  labels:
+    app: order-management
+    component: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: order-management
+      component: backend
+  template:
+    metadata:
+      labels:
+        app: order-management
+        component: backend
+    spec:
+      containers:
+        - name: order-management
+          image: ${{ registry }}/tc-fiap-fast-food-repo:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: app-secret
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: app-secret
+                  key: POSTGRES_PASSWORD
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: POSTGRES_DB
+            - name: POSTGRES_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: POSTGRES_URL
+            - name: SERVER_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: SERVER_PORT
+            - name: MERCADO_PAGO_EXTERNAL_POS_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: MERCADO_PAGO_EXTERNAL_POS_ID
+            - name: MERCADO_PAGO_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: MERCADO_PAGO_URL
+            - name: MERCADO_PAGO_ACCESS_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: app-secret
+                  key: MERCADO_PAGO_ACCESS_TOKEN
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+            initialDelaySeconds: 90
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8080
+            initialDelaySeconds: 90
+            periodSeconds: 5
+            timeoutSeconds: 2
+            failureThreshold: 3

@@ -12,7 +12,7 @@
 
 ## Visão Geral
 
-Projeto desenvolvido para gerenciamento de autoatendimento de restaurantes, tendo como funcionalidades:
+Projeto desenvolvido para o gerenciamento de autoatendimento de restaurantes, tendo como funcionalidades:
 
 - Gerenciamento de pedidos
 - Gerenciamento de clientes
@@ -25,8 +25,9 @@ Projeto desenvolvido para gerenciamento de autoatendimento de restaurantes, tend
 - [Requisitos de Negócio](#requisitos-de-negócio)
 - [Arquitetura de Infraestrutura](#arquitetura-de-infraestrutura)
 - [Documentação da API](#documentação-da-api)
-- [Configuração do Ambiente](#configuração-do-ambiente)
+- [Documentação da Banco de Dados](#documentação-da-banco-de-dados)
 - [Desenvolvimento](#desenvolvimento)
+- [Rodando Aplicação Local](#iniciando-com-docker-local)
 - [Equipe](#desenvolvedores)
 
 ## Requisitos de Negócio
@@ -134,174 +135,6 @@ A arquitetura implementada segue os seguintes princípios:
 
 ---
 
-## Passo a passo para Deploy
-
-
-### Pré-requisitos
-
-Certifique-se de ter as ferramentas abaixo instaladas em sua máquina:
-
-| Ferramenta     | Link de instalação oficial |
-|----------------|----------------------------|
-| **AWS CLI**    | [Instalar AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html) |
-| **Terraform**  | [Instalar Terraform](https://developer.hashicorp.com/terraform/downloads) |
-| **kubectl**    | [Instalar kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/) |
-| **Docker**     | [Instalar Docker](https://docs.docker.com/get-docker/) |
-| **k9s (opcional)** | [Instalar k9s](https://k9scli.io/topics/install/) |
-
-> 💡 Após instalar tudo, verifique se os comandos `aws`, `terraform`, `kubectl`, `docker` e `k9s` funcionam no terminal.
-
----
-
-### Atualizar credenciais AWS
-
-Obtenha as credencias no aws details apos iniciar o lab na AWS Academy e altere no arquivo `.aws/credentials`
-
-```text
-[default]
-aws_access_key_id=
-aws_secret_access_key=
-aws_session_token=
-```
-
-### 1. Inicializar o Terraform
-
-```bash
-cd terraform
-terraform init -upgrade
-terraform plan
-terraform apply
-```
-
-### 2. Outputs esperados
-
-Exemplo de Output:
-```text
-Changes to Outputs:
-  + aws_s3_bucket_name = "tc-fiap-fast-food-16299ad5"
-  + ecr_repository_url = "780442003514.dkr.ecr.us-east-1.amazonaws.com/tc-fiap-fast-food-repo"
-  + subnet_cidr        = ["10.0.0.0/20", "10.0.16.0/20", "10.0.32.0/20"]
-  + subnet_id          = ["subnet-0d91047b52fb85718", "subnet-0ab84ebfc5aa251a2", ...]
-  + vpc_cidr           = "10.0.0.0/16"
-  + vpc_id             = "vpc-04de6c3e5bbadc5fb"
-```
-
-> 💡 Lembre-se: os outputs serao diferentes, então se atente a mudar onde é necessario `ecr_repository_url`.
-
-## Docker e ECR
-
-### 3. Autenticar no ECR
-
-```bash
-aws ecr get-login-password | docker login --username AWS --password-stdin <ecr_repository_url>
-```
-
-### 4. Build e push da imagem Docker
-
-```bash
-cd ..
-# Build da imagem
-docker build -t order-management:latest -f docker/Dockerfile .
-
-# Tag da imagem com a URL do ECR
-docker tag order-management:latest <ecr_repository_url>:latest
-
-# Push da imagem para o ECR
-docker push <ecr_repository_url>:latest
-```
-
----
-
-## ☸️ Configurar o cluster EKS
-
-### 5. Atualizar o kubeconfig
-
-```bash
-aws eks update-kubeconfig --name eks-cluster-tc-fiap-fast-food --region us-east-1
-```
-
-### 6. Verificar conexão com o cluster
-
-```bash
-kubectl get nodes
-```
-
-(opcional) usar o [k9s](https://k9scli.io/) para visualização interativa:
-
-```bash
-k9s
-```
-
----
-
-## 📊 Instalar metrics-server (para HPA)
-
-```bash
-kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
-```
-
----
-
-## Aplicar PostgreSQL
-
-```bash
-kubectl apply -f k8s/postgres
-```
-
----
-
-## Deploy do App Backend
-
-### 7. Atualizar o campo `image` do Deployment
-
-Antes de aplicar o backend, edite o arquivo `k8s/app/deployment.yaml` e altere o campo `image:` para a URL da imagem no seu ECR:
-
-```yaml
-image: <ecr_repository_url>:latest
-```
-
-### 8. Aplicar os manifests do backend
-
-```bash
-kubectl apply -f k8s/app
-```
-
----
-
-## Acessar o serviço
-
-### 9. Obter o IP externo do serviço
-
-```bash
-kubectl get svc
-```
-
-Procure pela linha do `order-management` com o tipo `LoadBalancer` e anote o `EXTERNAL-IP`.
-
-### 10. Testar Probes (opcional)
-
-```bash
-curl http://<EXTERNAL-IP>:8080/actuator/health/readiness
-curl http://<EXTERNAL-IP>:8080/actuator/health/liveness
-```
-
----
-
-## 🧹 Limpar recursos
-
-### 11. Deletar os recursos Kubernetes
-
-```bash
-kubectl delete -f k8s/app
-kubectl delete -f k8s/postgres
-```
-
-### 12. Destruir a infraestrutura AWS
-
-```bash
-terraform destroy
-```
-
 ## Documentação da API
 
 A documentação interativa da API está disponível através do Swagger UI:
@@ -313,46 +146,15 @@ Para facilitar os testes, disponibilizamos uma collection do Postman com exemplo
 
 [![Run in Postman](https://run.pstmn.io/button.svg)](https://github.com/11SOAT-Tech-Challenge-Fast-Food/order-management/blob/main/postman/collections/order-management.postman_collection.json)
 
-## Configuração do Ambiente
+### Documentação Banco de Dados
 
-### Iniciando com Docker
+**Banco de Dados escolhido**: Banco de Dados Relacional - AWS RDS
 
-#### Pré-requisitos
+**Motivo da escolha**: Optamos por escolher um banco de relacional, devido aos fortes relacionamentos
+de entidade que desenhamos em nossa regra de negócio... O Banco de dados relacional é o que trás um melhor
+gerenciamento para esse fluxo.
 
-- Docker 20.10+
-- Docker Compose 2.0+
-- Git
-- JDK 17+ (opcional, apenas para desenvolvimento)
-
-1. **Clone o repositório**
-   ```bash
-   git clone https://github.com/11SOAT-Tech-Challenge-Fast-Food/order-management.git
-   cd order-management
-   ```
-
-2. **Configure as variáveis de ambiente**
-   ```bash
-   Edite o arquivo variables-docker.env conforme necessário
-   ```
-
-3. **Inicie os containers**
-   ```bash
-   docker-compose -f docker/docker-compose.yml up -d
-   ```
-
-4. **Acesse a aplicação**
-   - API: http://localhost:8080
-   - Swagger UI: http://localhost:8080/swagger-ui.html
-   - Banco de Dados: localhost:5432
-
-5. **Parando a aplicação**
-   ```bash
-   docker-compose -f docker/docker-compose.yml down
-   ```
-
-### Iniciando com Kubernets
-
-TODO
+![der.drawio.png](files/der.drawio.png)
 
 ## Desenvolvimento
 
@@ -393,6 +195,48 @@ src/
 - Utilize nomes descritivos para variáveis e funções
 - Documente funções e classes públicas
 - Escreva testes unitários para novas funcionalidades
+
+
+## Rodando aplicação
+
+> **Lembrete**: Nosso repositório já está integrado com o Github Actions para realizar o deploy do kubernets, só abrir o pr para a branch Main e após o merge, será feito o deploy automáticamente
+
+### Iniciando com Docker Local
+
+#### Pré-requisitos
+
+- Docker 20.10+
+- Docker Compose 2.0+
+- Git
+- JDK 17+ (opcional, apenas para desenvolvimento)
+
+1. **Clone o repositório**
+   ```bash
+   git clone https://github.com/11SOAT-Tech-Challenge-Fast-Food/order-management.git
+   cd order-management
+   ```
+
+2. **Configure as variáveis de ambiente**
+   ```bash
+   Edite o arquivo variables-docker.env conforme necessário
+   ```
+
+3. **Inicie os containers**
+   ```bash
+   docker-compose -f docker/docker-compose.yml up -d
+   ```
+
+4. **Acesse a aplicação**
+    - API: http://localhost:8080
+    - Swagger UI: http://localhost:8080/swagger-ui.html
+    - Banco de Dados: localhost:5432
+
+5. **Parando a aplicação**
+   ```bash
+   docker-compose -f docker/docker-compose.yml down
+   ```
+
+---
 
 ## Desenvolvedores
 | [<img loading="lazy" src="https://avatars.githubusercontent.com/u/79323910?v=4" width=115><br><sub>Bianca Vediner</sub>](https://github.com/BiaVediner) | [<img loading="lazy" src="https://avatars.githubusercontent.com/u/79324306?v=4" width=115><br><sub>Wesley Paternezi</sub>](https://github.com/WesleyPaternezi) | [<img loading="lazy" src="https://avatars.githubusercontent.com/u/61800458?v=4 " width=115><br><sub>Guilherme Paternezi</sub>](https://github.com/guilherme-paternezi) |
