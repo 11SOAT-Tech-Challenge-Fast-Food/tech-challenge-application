@@ -45,8 +45,9 @@ jobs:
     env:
       EKS_CLUSTER_NAME: ${{ github.event.inputs.eks_cluster_name }}
       ECR_REPO_NAME: ${{ github.event.inputs.ecr_repo_name }}
+      IMAGE_TAG: ${{ github.sha }}
     steps:
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Configure AWS credentials
@@ -59,28 +60,24 @@ jobs:
 
       - name: Login to Amazon ECR
         id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
+        uses: aws-actions/amazon-ecr-login@v2
 
       - name: Build and Push Docker Image
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          push: true
-          tags: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPO_NAME }}:latest
+        run: |
+          echo "Building Docker image..."
+          docker build -t ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPO_NAME }}:${{ env.IMAGE_TAG }} .
+          docker push ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPO_NAME }}:${{ env.IMAGE_TAG }}
 
-      - name: Setup kubectl
-        uses: aws-actions/setup-kubectl@v2
+      - name: Update deployment.yaml with image
+        run: |
+          sed -i "s|\${registry}|${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPO_NAME }}:${{ env.IMAGE_TAG }}|g" .github/k8s/deployment.yaml
+
+      - name: Update kubeconfig for EKS
+        uses: aws-actions/amazon-eks-configure-kubeconfig@v1
+        with:
+          cluster-name: ${{ env.EKS_CLUSTER_NAME }}
+          aws-region: ${{ env.AWS_REGION }}
 
       - name: Deploy to EKS
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         run: |
-          # Substitui o placeholder ${registry} no deployment.yaml pelo ECR registry real
-          sed -i "s|\${registry}|$ECR_REGISTRY|g" .github/k8s/deployment.yaml
-          
-          # Atualiza kubeconfig para o cluster dinâmico
-          aws eks update-kubeconfig --name ${{ env.EKS_CLUSTER_NAME }} --region ${{ env.AWS_REGION }}
-          
-          # Aplica deployment e service
-          kubectl apply -f k8s/deployment.yaml
-          kubectl apply -f k8s/service.yaml
+          kubectl apply -f k8s/
