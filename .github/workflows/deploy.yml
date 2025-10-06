@@ -52,23 +52,17 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Debug Docker variables
-        run: |
-          echo "ECR Registry: ${{ steps.login-ecr.outputs.registry }}"
-          echo "ECR Repository: ${{ env.ECR_REPO_NAME }}"
-          echo "Image Tag: ${{ env.IMAGE_TAG }}"
-
       - name: Build and Push Docker Image
         run: |
-          docker build -t ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPO_NAME }}:${{ env.IMAGE_TAG }} -f docker/Dockerfile .
+          docker build -t ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPO_NAME }}:${{ env.IMAGE_TAG }} .
           docker push ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPO_NAME }}:${{ env.IMAGE_TAG }}
 
-      - name: Update deployment.yaml with image
+      - name: Update deployment.yaml with image tag
         run: |
           sed -i "s|\${registry}|${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPO_NAME }}:${{ env.IMAGE_TAG }}|g" k8s/deployment.yaml
 
-      - name: Setup kubectl for EKS
-        uses: kodermax/kubectl-aws-eks@v1
+      - name: Configure kubeconfig for EKS
+        uses: aws-actions/amazon-eks-configure-kubeconfig@v1
         with:
           cluster-name: ${{ env.EKS_CLUSTER_NAME }}
           region: ${{ env.AWS_REGION }}
