@@ -27,12 +27,12 @@ spec:
             - name: POSTGRES_USER
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Release.Name }}-secret
+                  name: {{ if .Values.secrets.externalSecret }}{{ .Values.secrets.externalSecret }}{{ else }}{{ .Release.Name }}-secret{{ end }}
                   key: POSTGRES_USER
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Release.Name }}-secret
+                  name: {{ if .Values.secrets.externalSecret }}{{ .Values.secrets.externalSecret }}{{ else }}{{ .Release.Name }}-secret{{ end }}
                   key: POSTGRES_PASSWORD
             - name: POSTGRES_DB
               valueFrom:
@@ -62,7 +62,7 @@ spec:
             - name: MERCADO_PAGO_ACCESS_TOKEN
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Release.Name }}-secret
+                  name: {{ if .Values.secrets.externalSecret }}{{ .Values.secrets.externalSecret }}{{ else }}{{ .Release.Name }}-secret{{ end }}
                   key: MERCADO_PAGO_ACCESS_TOKEN
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
