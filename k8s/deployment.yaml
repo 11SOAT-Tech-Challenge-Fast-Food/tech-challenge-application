@@ -20,6 +20,7 @@ spec:
       containers:
         - name: order-management
           image: ${{ registry }}/tc-fiap-fast-food-repo:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 8080
           env:
