@@ -71,14 +71,6 @@ jobs:
             --output text)
           echo "RDS_ENDPOINT=$ENDPOINT" >> $GITHUB_ENV
 
-      - name: Create Kubernetes secret for DB and MP tokens
-        run: |
-          kubectl create secret generic app-secret \
-            --from-literal=POSTGRES_PASSWORD="${{ secrets.DB_PASS }}" \
-            --from-literal=POSTGRES_USER="${{ secrets.DB_USER }}" \
-            --from-literal=MERCADO_PAGO_ACCESS_TOKEN="${{ secrets.MERCADO_PAGO_ACCESS_TOKEN }}" \
-            -n default --dry-run=client -o yaml | kubectl apply -f -
-
       - name: Deploy Helm chart
         run: |
           HOST=$(echo $RDS_ENDPOINT | awk '{print $1}')
@@ -88,7 +80,9 @@ jobs:
             --set config.POSTGRES_URL="jdbc:postgresql://$HOST:$PORT/ordermanagementdb" \
             --set image.repository="${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPO_NAME }}" \
             --set image.tag="${{ env.IMAGE_TAG }}" \
-            --set secrets.existingSecret="app-secret" \
+            --set secrets.POSTGRES_USER=${{ secrets.DB_USER }}" \
+            --set secrets.POSTGRES_PASSWORD="${{ secrets.DB_PASS }}" \
+            --set secrets.MERCADO_PAGO_ACCESS_TOKEN="${{ secrets.MERCADO_PAGO_ACCESS_TOKEN }}" \
             --namespace default
 
       - name: Show LoadBalancer endpoint
