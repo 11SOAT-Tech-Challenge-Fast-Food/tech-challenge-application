@@ -84,7 +84,7 @@ jobs:
           HOST=$(echo $RDS_ENDPOINT | awk '{print $1}')
           PORT=$(echo $RDS_ENDPOINT | awk '{print $2}')
           
-          helm upgrade --install order-management ./chart \
+          helm upgrade --install order-management ./helm/api \
             --set config.POSTGRES_URL="jdbc:postgresql://$HOST:$PORT/ordermanagementdb" \
             --set image.repository="${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPO_NAME }}" \
             --set image.tag="${{ env.IMAGE_TAG }}" \
