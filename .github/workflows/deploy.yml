@@ -8,7 +8,7 @@ on:
 
 env:
   AWS_REGION: us-east-1
-  EKS_CLUSTER_NAME: eks-cluster-tc-fiap-fast-food
+  EKS_CLUSTER_NAME: eks-cluster-tech-challenge-ordermanagement
 
 jobs:
   gradlew:
@@ -56,7 +56,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ steps.login-ecr.outputs.registry }}/tc-fiap-fast-food-repo:latest
+          tags: ${{ steps.login-ecr.outputs.registry }}/tech-challenge-ordermanagement-repo:latest
 
       - name: Setup kubectl
         uses: aws-actions/setup-kubectl@v3
