@@ -4,7 +4,7 @@ metadata:
   name: app-config
 data:
   POSTGRES_DB: order-management
-  POSTGRES_URL: jdbc:postgresql://order-management-db:5432/order-management
+  POSTGRES_URL: jdbc:postgresql://tech-challenge-postgres.cwephenukgyv.us-east-1.rds.amazonaws.com:5432/order-management
   MERCADO_PAGO_EXTERNAL_POS_ID: EXTERNALIDPOSTESTE
   MERCADO_PAGO_URL: https://api.mercadopago.com
   SERVER_PORT: "8080"
