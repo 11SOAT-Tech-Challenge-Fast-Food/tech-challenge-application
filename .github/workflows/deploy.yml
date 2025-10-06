@@ -5,15 +5,22 @@ on:
     branches:
       - main
   workflow_dispatch:
+    inputs:
+      eks_cluster_name:
+        description: 'EKS Cluster Name'
+        required: false
+        default: 'eks-cluster-tech-challenge-ordermanagement'
+      ecr_repo_name:
+        description: 'ECR Repository Name'
+        required: false
+        default: 'tech-challenge-ordermanagement-repo'
 
 env:
   AWS_REGION: us-east-1
-  EKS_CLUSTER_NAME: eks-cluster-tech-challenge-ordermanagement
 
 jobs:
   gradlew:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -30,17 +37,20 @@ jobs:
 
       - name: Run tests and generate coverage
         run: ./gradlew clean build
+
   deploy:
     needs: gradlew
     runs-on: ubuntu-latest
     environment: production
-
+    env:
+      EKS_CLUSTER_NAME: ${{ github.event.inputs.eks_cluster_name }}
+      ECR_REPO_NAME: ${{ github.event.inputs.ecr_repo_name }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -56,7 +66,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ steps.login-ecr.outputs.registry }}/tech-challenge-ordermanagement-repo:latest
+          tags: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPO_NAME }}:latest
 
       - name: Setup kubectl
         uses: aws-actions/setup-kubectl@v3
@@ -65,8 +75,12 @@ jobs:
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         run: |
-          # Substitui a variável no arquivo de deployment
-          sed -i "s|\${{ registry }}|$ECR_REGISTRY|g" .github/k8s/deployment.yaml
+          # Substitui o placeholder ${registry} no deployment.yaml pelo ECR registry real
+          sed -i "s|\${registry}|$ECR_REGISTRY|g" .github/k8s/deployment.yaml
+          
+          # Atualiza kubeconfig para o cluster dinâmico
           aws eks update-kubeconfig --name ${{ env.EKS_CLUSTER_NAME }} --region ${{ env.AWS_REGION }}
+          
+          # Aplica deployment e service
           kubectl apply -f k8s/deployment.yaml
           kubectl apply -f k8s/service.yaml
