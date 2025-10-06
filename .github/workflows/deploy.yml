@@ -62,9 +62,15 @@ jobs:
         with:
           cluster: ${{ env.EKS_CLUSTER_NAME }}
 
-      - name: Deploy to EKS
+      - name: Ensure deployment exists
         run: |
           kubectl apply -f k8s/deployment.yaml
+
+      - name: Update deployment image
+        run: |
+          kubectl set image deployment/order-management-backend \
+            order-management=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPO_NAME }}:${{ env.IMAGE_TAG }} \
+            --record
           kubectl rollout status deployment/order-management-backend
 
       - name: Show LoadBalancer endpoint
