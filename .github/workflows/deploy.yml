@@ -62,19 +62,28 @@ jobs:
         with:
           cluster: ${{ env.EKS_CLUSTER_NAME }}
 
-      - name: Ensure deployment exists
+      - name: Get RDS endpoint
+        id: rds
         run: |
-          kubectl apply -f k8s/configmap.yaml
-          kubectl apply -f k8s/secret.yaml
-          kubectl apply -f k8s/service.yaml
-          kubectl apply -f k8s/deployment.yaml
+          ENDPOINT=$(aws rds describe-db-instances \
+            --db-instance-identifier tech-challenge-postgres \
+            --query "DBInstances[0].[Endpoint.Address, Endpoint.Port]" \
+            --output text)
+          echo "RDS_ENDPOINT=$ENDPOINT" >> $GITHUB_ENV
 
-      - name: Update deployment image
+      - name: Deploy Helm chart
         run: |
-          kubectl set image deployment/order-management-backend \
-            order-management=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPO_NAME }}:${{ env.IMAGE_TAG }} \
-            --record
-
+          # Separar host e porta do endpoint
+          HOST=$(echo $RDS_ENDPOINT | awk '{print $1}')
+          PORT=$(echo $RDS_ENDPOINT | awk '{print $2}')
+          
+          # Deploy Helm com URL do RDS dinâmico e imagem do ECR
+          helm upgrade --install order-management ./chart \
+            --set config.POSTGRES_URL="jdbc:postgresql://$HOST:$PORT/ordermanagementdb" \
+            --set image.repository="${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPO_NAME }}" \
+            --set image.tag="${{ env.IMAGE_TAG }}" \
+            --namespace default
+          
       - name: Show LoadBalancer endpoint
         run: |
           ENDPOINT=$(kubectl get svc order-management-backend -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
