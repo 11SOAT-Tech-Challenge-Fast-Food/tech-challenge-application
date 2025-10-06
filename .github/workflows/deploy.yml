@@ -69,7 +69,7 @@ jobs:
           tags: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPO_NAME }}:latest
 
       - name: Setup kubectl
-        uses: aws-actions/setup-kubectl@v3
+        uses: aws-actions/setup-kubectl@v2
 
       - name: Deploy to EKS
         env:
