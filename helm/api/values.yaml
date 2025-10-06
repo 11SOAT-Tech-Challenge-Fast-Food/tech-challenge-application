@@ -1,8 +1,8 @@
 replicaCount: 1
 
 image:
-  repository: 559815591140.dkr.ecr.us-east-1.amazonaws.com/tech-challenge-ordermanagement-repo
-  tag: "latest"
+  repository: ""
+  tag: ""
   pullPolicy: Always
 
 service:
@@ -19,12 +19,10 @@ resources:
 
 config:
   POSTGRES_DB: "ordermanagementdb"
-  POSTGRES_URL: "jdbc:postgresql://tech-challenge-postgres.cwephenukgyv.us-east-1.rds.amazonaws.com:5432/ordermanagementdb"
+  POSTGRES_URL: ""
   MERCADO_PAGO_EXTERNAL_POS_ID: "EXTERNALIDPOSTESTE"
   MERCADO_PAGO_URL: "https://api.mercadopago.com"
   SERVER_PORT: "8080"
 
 secrets:
-  POSTGRES_USER: "ordermanagement"
-  POSTGRES_PASSWORD: "passdb12345"
-  MERCADO_PAGO_ACCESS_TOKEN: "APP_UST-XXXX"
+  existingSecret: ""
