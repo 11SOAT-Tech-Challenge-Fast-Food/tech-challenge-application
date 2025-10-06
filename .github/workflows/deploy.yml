@@ -80,7 +80,7 @@ jobs:
             --set config.POSTGRES_URL="jdbc:postgresql://$HOST:$PORT/ordermanagementdb" \
             --set image.repository="${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPO_NAME }}" \
             --set image.tag="${{ env.IMAGE_TAG }}" \
-            --set secrets.POSTGRES_USER=${{ secrets.DB_USER }}" \
+            --set secrets.POSTGRES_USER="${{ secrets.DB_USER }}" \
             --set secrets.POSTGRES_PASSWORD="${{ secrets.DB_PASS }}" \
             --set secrets.MERCADO_PAGO_ACCESS_TOKEN="${{ secrets.MERCADO_PAGO_ACCESS_TOKEN }}" \
             --namespace default
