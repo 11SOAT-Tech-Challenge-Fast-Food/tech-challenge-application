@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-config
+data:
+  POSTGRES_DB: {{ .Values.config.POSTGRES_DB | quote }}
+  POSTGRES_URL: {{ .Values.config.POSTGRES_URL | quote }}
+  MERCADO_PAGO_EXTERNAL_POS_ID: {{ .Values.config.MERCADO_PAGO_EXTERNAL_POS_ID | quote }}
+  MERCADO_PAGO_URL: {{ .Values.config.MERCADO_PAGO_URL | quote }}
+  SERVER_PORT: {{ .Values.config.SERVER_PORT | quote }}
