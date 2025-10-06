@@ -154,7 +154,15 @@ Para facilitar os testes, disponibilizamos uma collection do Postman com exemplo
 de entidade que desenhamos em nossa regra de negócio... O Banco de dados relacional é o que trás um melhor
 gerenciamento para esse fluxo.
 
-![der.drawio.png](files/der.drawio.png)
+**Regras implementadas**: Além da implementação dos relacionamentos demonstrados no nosso DER, utilizamos da criação de indíces para melhorar a perfomance 
+do nosso banco de dados. 
+
+Os indíces também estão descritos no nosso DER, até a Fase 2 já utilizávamos o INDEX nas entidades Customer e Product.
+Na fase 3 optamos por criar também nas entidades Payment, OrderItem e Order
+
+![DER.drawio (1).png](files/DER.drawio%20%281%29.png)
+
+---
 
 ## Desenvolvimento
 

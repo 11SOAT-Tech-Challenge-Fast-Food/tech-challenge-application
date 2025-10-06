@@ -7,3 +7,6 @@ CREATE TABLE IF NOT EXISTS payments(
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+create index idx_payment_order_id on payments(order_id);
+create index idx_payment_external_id on payments(external_id);
