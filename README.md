@@ -131,7 +131,7 @@ A arquitetura implementada segue os seguintes princípios:
 - Imagens Docker armazenadas no **ECR**
 - Acesso externo ao backend via **LoadBalancer**
 
-![consulta-pedidos.jpg](files/arquitetura-aws-v1.jpg)
+![Arq.drawio.png](files/Arq.drawio.png)
 
 ---
 
